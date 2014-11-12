@@ -268,6 +268,59 @@
     }
 
 
+    
+    //h1: altitude of highest full cell in playing field.
+
+    //Input tetris grid, return x,y coordinates of highest block. 
+    //If two blocks are at the same height, return block with x coordinate. 
+    //Return with -1 for x and y values if grid is empty.
+    function getHighestCell(blocks)
+    {
+      for (int y = ny; y > 0; y--) 
+      {
+        for (int x = 0, x < nx; x++)
+        {
+          //Search from top down. Return coordinates of first bloack we find.
+          if(getBlocks(x,y) != null)
+            {
+              return {highestX: x, highestY: y};
+            }
+
+        }
+      }
+      return {highestX: -1, highestY: -1};
+    }
+
+    //h0 : number of hole in the playfield
+    //Return number of holes and "soft holes" in grid
+    //soft hole are empty cells under an occupied cell.
+    function getNumberOfHoles(blocks){
+    
+    //variables x and y and number of holes and "soft holes"
+    var x = 0;
+    var y = 0;
+    var holecount = 0;
+
+    for (x = 0; x < nx ; x++)
+    {
+      for (y = ny; y > 0; y--)
+      {
+        if (getBlocks(x,y) != null){ //Found block, look for all empty slots underneath it.
+
+          for (y1 = y; y > 0; y--)
+          {
+            if (getBlocks(x,y) == null){
+              holecount = holecount + 1;
+            }
+          }
+
+        }
+      }
+    }
+      return holecount;
+    }
+
+
     //-------------------------------------------------------------------------
     // GAME LOGIC
     //-------------------------------------------------------------------------
