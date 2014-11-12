@@ -233,6 +233,43 @@
         ev.preventDefault(); // prevent arrow keys from scrolling the page (supported in IE9+ and all other browsers)
     }
 
+    //-----------------------------------------------------------------------
+    //  TETRIS AI LOGIC 
+    //-----------------------------------------------------------------------
+
+    // h2 = the number of full cells in the playfield
+    //h5 = the number of full cells in the playfield weighted by their altitude
+
+    // Given the nx by ny grid, calculate the number of full cells in the playfield
+    function getFullCells(blocks)
+    {
+      // total number of full cells in the grid
+      var count = 0;
+      // the weighted number of full cells by their alt
+      var result = 0.0;
+      // Counts the number of cells in a single column
+      var temp = 0;
+
+      for (int y = 0; y < ny; x++)
+      {
+        for (int x = 0; x < nx; y++)
+        {
+          // if there exists a block increment count
+          if (getBlock(x,y) != null)
+          {
+            count = count+1;
+            temp = temp + 1;
+          }
+        }
+
+        // done counting a particular column - Check to see if this is floating number or not
+        result = result + (temp/ny)*temp;
+        temp = 0;
+      }
+      return {fullcells : count, fullalt : result};
+    }
+
+
     //-------------------------------------------------------------------------
     // GAME LOGIC
     //-------------------------------------------------------------------------
