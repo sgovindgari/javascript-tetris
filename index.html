@@ -337,21 +337,22 @@
     //Input tetris grid, return x,y coordinates of highest block. 
     //If two blocks are at the same height, return block with x coordinate. 
     //Return with -1 for x and y values if grid is empty.
+    // From the top left of the grid. Y increases as you go down!!
     function getHighestCell(blocks)
     {
-      for (int y = ny; y > 0; y--) 
+      for (var y = 0; y < ny; y++) 
       {
-        for (int x = 0, x < nx; x++)
+        for (var x = 0; x < nx; x++)
         {
           //Search from top down. Return coordinates of first bloack we find.
-          if(getBlocks(x,y) != null)
+          if(getBlock(x,y) != null)
             {
-              return {highestX: x, highestY: y};
+              return {highestX: x, highestY: ny-y};
             }
 
         }
       }
-      return {highestX: -1, highestY: -1};
+      return { highestX: -1, highestY: -1};
     }
 
     //h0 : number of hole in the playfield
@@ -366,13 +367,13 @@
 
     for (x = 0; x < nx ; x++)
     {
-      for (y = ny; y > 0; y--)
+      for (y = 0; y < ny; y++)
       {
-        if (getBlocks(x,y) != null){ //Found block, look for all empty slots underneath it.
+        if (getBlock(x,y) != null){ //Found block, look for all empty slots underneath it.
 
-          for (y1 = y; y > 0; y--)
+          for (y1 = y; y < ny; y++)
           {
-            if (getBlocks(x,y) == null){
+            if (getBlock(x,y) == null){
               holecount = holecount + 1;
             }
           }
@@ -381,6 +382,19 @@
       }
     }
       return holecount;
+    }
+
+
+    function testGetHighestCell(blocks){
+      highestCell = getHighestCell(blocks);
+      console.log(highestCell);       
+      console.log("printed Highest Cell coordinates");
+    }
+
+    function testGetNumberOfHoles(blocks){
+      nHoles = getNumberOfHoles(blocks);
+      console.log(nHoles);
+      console.log("printed number of holes"); 
     }
 
 
@@ -423,7 +437,7 @@
         dt = dt + idt;
         if (dt > step) {
           dt = dt - step;
-          drop();
+          drop(blocks);
         }
       }
     }
@@ -474,6 +488,8 @@
         if (occupied(current.type, current.x, current.y, current.dir)) {
           lose();
         }
+        testGetHighestCell(blocks);
+        testGetNumberOfHoles(blocks);
       }
     }
 
