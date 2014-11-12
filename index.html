@@ -250,8 +250,8 @@
       // Counts the number of cells in a single column
       var temp = 0;
 
-      for (var y = 0; y < ny; x = x + 1) {
-        for (var x = 0; x < nx; y = y + 1)
+      for (var y = 0; y < ny; y++) {
+        for (var x = 0; x < nx; x++)
         {
           // if there exists a block increment count
           if (getBlock(x,y) != null)
@@ -268,27 +268,25 @@
       return {fullcells : count, fullalt : result};
     }
 
-     function testSlope(){
-      reset();
-      stats = getSlopeValues(blocks); // global
-      console.log(stats[h3]);
-      console.log(stats[h4]);
+     function testSlope(blocks){
+      var stats = getSlopeValues(blocks); // global
+      console.log(stats);
+      // console.log(stats[h4]);
     }
 
     function testFullCells(){
-      reset();
-      // stats = getFullCells(blocks); // global\
+      var stats = getFullCells(blocks); // global\
       console.log("hello");
-      console.log(testPerformance(blocks))
-      // console.log(stats[fullcells]);
+      console.log(stats);
       // console.log(stats[fullalt]);
     }
 
     function testPerformance(blocks){
+      reset();
       var counter = 0
-      for (var x = 0; x < nx; x = x + 1)
+      for (var x = 0; x < nx; x++)
       {
-        for (var y = 0; y < ny; x = x + 1) {
+        for (var y = 0; y < ny; y++) {
           if (getBlock(0,0) != null){
             counter = counter + 1; // dummy
           }
@@ -301,10 +299,10 @@
       var slopes = [];
       var prev = 0;
       var current = 0;
-        for (var x = 0; x < nx; y = y + 1)
+        for (var x = 0; x < nx; x++)
       {
         var height = 0;
-        for (var y = 0; y < ny; x = x + 1)
+        for (var y = 0; y < ny; y++)
         {
           if (getBlock(x,y) != null)
           {
@@ -413,7 +411,8 @@
     function setRows(n)             { rows = n; step = Math.max(speed.min, speed.start - (speed.decrement*rows)); invalidateRows(); }
     function addRows(n)             { setRows(rows + n); }
     function getBlock(x,y)          { return (blocks && blocks[x] ? blocks[x][y] : null); }
-    function setBlock(x,y,type)     { blocks[x] = blocks[x] || []; blocks[x][y] = type; invalidate(); }
+    function setBlock(x,y,type, mat) { mat[x] = mat[x] || []; mat[x][y] = type; invalidate(); }
+    function setBlock(x,y,type)     { setBlock(x,y,type, blocks) }
     function clearBlocks()          { blocks = []; invalidate(); }
     function clearActions()         { actions = []; }
     function setCurrentPiece(piece) { current = piece || randomPiece(); invalidate();     }
@@ -491,6 +490,33 @@
         testGetHighestCell(blocks);
         testGetNumberOfHoles(blocks);
       }
+    }
+
+    function calculatePossibilities(){
+      var possibilities = {};
+      // generate all poss
+      // for every x
+      // for every dir
+      var piece;
+      var currmat;
+      eachblock(piece.type, piece.x, piece.y, piece.dir, function(x, y) {
+        setBlockMat(x, y, current.type, currmat);
+      });
+      possibilities[currmat] = piece;
+      return possibilities;
+    }
+
+    functionFindBestPiece(){
+      var possibilities = calculatePossibilities();
+      // find best
+      // set current to piece corresponding to best mat key
+      return piece
+    }
+
+    functionDropBestPiece(){
+      var piece = findBestPOssibilities();
+      // drop it all the way
+      drop();
     }
 
     function dropPiece() {
