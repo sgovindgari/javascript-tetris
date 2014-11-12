@@ -237,6 +237,8 @@
 
     // h2 = the number of full cells in the playfield
     //h5 = the number of full cells in the playfield weighted by their altitude
+    // h3 = the value of the higher slope in the playfield
+    // h4 = the roughness (sum of the slopes)
 
     // Given the nx by ny grid, calculate the number of full cells in the playfield
     function getFullCells(blocks)
@@ -248,9 +250,8 @@
       // Counts the number of cells in a single column
       var temp = 0;
 
-      for (int y = 0; y < ny; x++)
-      {
-        for (int x = 0; x < nx; y++)
+      for (var y = 0; y < ny; x = x + 1) {
+        for (var x = 0; x < nx; y = y + 1)
         {
           // if there exists a block increment count
           if (getBlock(x,y) != null)
@@ -266,6 +267,68 @@
       }
       return {fullcells : count, fullalt : result};
     }
+
+     function testSlope(){
+      reset();
+      stats = getSlopeValues(blocks); // global
+      console.log(stats[h3]);
+      console.log(stats[h4]);
+    }
+
+    function testFullCells(){
+      reset();
+      // stats = getFullCells(blocks); // global\
+      console.log("hello");
+      console.log(testPerformance(blocks))
+      // console.log(stats[fullcells]);
+      // console.log(stats[fullalt]);
+    }
+
+    function testPerformance(blocks){
+      var counter = 0
+      for (var x = 0; x < nx; x = x + 1)
+      {
+        for (var y = 0; y < ny; x = x + 1) {
+          if (getBlock(0,0) != null){
+            counter = counter + 1; // dummy
+          }
+        }
+      }
+        return counter;
+    }
+
+    function getSlopeValues(blocks){
+      var slopes = [];
+      var prev = 0;
+      var current = 0;
+        for (var x = 0; x < nx; y = y + 1)
+      {
+        var height = 0;
+        for (var y = 0; y < ny; x = x + 1)
+        {
+          if (getBlock(x,y) != null)
+          {
+            height = y + 1;
+          }
+        }
+        prev = current;
+        current = height;
+        if (x == 0){
+          continue;
+        }
+        slope = Math.abs(current - prev); 
+        slopes.push(slope) 
+    }
+    var max = 0;
+    var sum = 0;
+    for (s in slopes){
+      sum = sum + s;
+      if (s > max){
+        max = s;
+      }
+    }
+    return {h3 : max, h4 : sum};
+  }
 
 
     
