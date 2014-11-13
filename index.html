@@ -271,7 +271,6 @@
      function testSlope(blocks){
       var stats = getSlopeValues(blocks); // global
       console.log(stats);
-      // console.log(stats[h4]);
     }
 
     function testFullCells(){
@@ -297,32 +296,34 @@
 
     function getSlopeValues(blocks){
       var slopes = [];
-      var prev = 0;
-      var current = 0;
-        for (var x = 0; x < nx; x++)
-      {
-        var height = 0;
-        for (var y = 0; y < ny; y++)
-        {
-          if (getBlock(x,y) != null)
+      var prev = 0.0;
+      var current = 0.0;
+        for (var x = 0; x < nx; x++) {
+          var height = 0;
+          for (var y = 0; y < ny; y++)
           {
-            height = y + 1;
+            if (getBlock(x,y) != null)
+            {
+              height = 20 - y;
+              console.log(height);
+              break;
+            }
           }
+          prev = current;
+          current = height;
+          if (x == 0){
+            continue;
+          }
+          slope = Math.abs(current - prev); 
+          slopes.push(slope);
         }
-        prev = current;
-        current = height;
-        if (x == 0){
-          continue;
-        }
-        slope = Math.abs(current - prev); 
-        slopes.push(slope) 
-    }
-    var max = 0;
-    var sum = 0;
+    var max = 0.0;
+    var sum = 0.0;
     for (s in slopes){
-      sum = sum + s;
-      if (s > max){
-        max = s;
+      // console.log(slopes[s]);
+      sum = sum + slopes[s];
+      if (slopes[s] > max){
+        max = slopes[s];
       }
     }
     return {h3 : max, h4 : sum};
@@ -333,7 +334,7 @@
     //h1: altitude of highest full cell in playing field.
 
     //Input tetris grid, return x,y coordinates of highest block. 
-    //If two blocks are at the same height, return block with x coordinate. 
+    //If two blocks are at the same height, return block with smaller x coordinate. 
     //Return with -1 for x and y values if grid is empty.
     // From the top left of the grid. Y increases as you go down!!
     function getHighestCell(blocks)
@@ -342,7 +343,7 @@
       {
         for (var x = 0; x < nx; x++)
         {
-          //Search from top down. Return coordinates of first bloack we find.
+          //Search from top down. Return coordinates of first block we find.
           if(getBlock(x,y) != null)
             {
               return {highestX: x, highestY: ny-y};
@@ -411,8 +412,8 @@
     function setRows(n)             { rows = n; step = Math.max(speed.min, speed.start - (speed.decrement*rows)); invalidateRows(); }
     function addRows(n)             { setRows(rows + n); }
     function getBlock(x,y)          { return (blocks && blocks[x] ? blocks[x][y] : null); }
-    function setBlock(x,y,type, mat) { mat[x] = mat[x] || []; mat[x][y] = type; invalidate(); }
-    function setBlock(x,y,type)     { setBlock(x,y,type, blocks) }
+    function setBlock2(x,y,type, mat) { mat[x] = mat[x] || []; mat[x][y] = type; invalidate(); }
+    function setBlock(x,y,type)     { setBlock2(x,y,type, blocks) }
     function clearBlocks()          { blocks = []; invalidate(); }
     function clearActions()         { actions = []; }
     function setCurrentPiece(piece) { current = piece || randomPiece(); invalidate();     }
@@ -481,15 +482,19 @@
         addScore(10);
         dropPiece();
         removeLines();
+
         setCurrentPiece(next);
         setNextPiece(randomPiece());
         clearActions();
         if (occupied(current.type, current.x, current.y, current.dir)) {
           lose();
         }
+        // testing
         testGetHighestCell(blocks);
         testGetNumberOfHoles(blocks);
+        testSlope(blocks);
       }
+
     }
 
     function calculatePossibilities(){
@@ -506,14 +511,14 @@
       return possibilities;
     }
 
-    functionFindBestPiece(){
+    function findBestPiece(){
       var possibilities = calculatePossibilities();
       // find best
       // set current to piece corresponding to best mat key
       return piece
     }
 
-    functionDropBestPiece(){
+    function dropBestPiece(){
       var piece = findBestPOssibilities();
       // drop it all the way
       drop();
