@@ -332,13 +332,15 @@
 
     
     //h1: altitude of highest full cell in playing field.
-
+    // The Y coordinate of the highest Cell in the playing field
     //Input tetris grid, return x,y coordinates of highest block. 
     //If two blocks are at the same height, return block with smaller x coordinate. 
     //Return with -1 for x and y values if grid is empty.
     // From the top left of the grid. Y increases as you go down!!
     function getHighestCell(blocks)
     {
+      var highestAltitude = -1 ;
+
       for (var y = 0; y < ny; y++) 
       {
         for (var x = 0; x < nx; x++)
@@ -346,12 +348,12 @@
           //Search from top down. Return coordinates of first block we find.
           if(getBlock(x,y) != null)
             {
-              return {highestX: x, highestY: ny-y};
+              return ny-y
             }
 
         }
       }
-      return { highestX: -1, highestY: -1};
+      return highestAltitude;
     }
 
     //h0 : number of hole in the playfield
@@ -387,7 +389,7 @@
     function testGetHighestCell(blocks){
       highestCell = getHighestCell(blocks);
       console.log(highestCell);       
-      console.log("printed Highest Cell coordinates");
+      console.log("printed Highest Cell altitude");
     }
 
     function testGetNumberOfHoles(blocks){
@@ -511,12 +513,49 @@
       return possibilities;
     }
 
+
+    // Given a tretris array: return score based on heuristic function.
+    function calculateScore(matrix) {
+      var h2_h5 = getFullCells(matrix)[fullcells] + getFullCells(matrix)[fullalt]; //returns object with mappings
+      var fullcells = h2_h5[fullcells];
+      var fullcellsAlt = h2_h5[fullalt];
+      var h3_h4 = getSlopeValues(matrix);
+      var slope = h3_h4[h3];
+      var roughness = h3_h4[h4];
+      var highestCell = getHighestCell(matrix);
+      var nHoles = getNumberOfHoles(matrix);
+
+      return fullcells + fullcellsAlt + slope + roughness + highestCell + nHoles;
+    }
+
+    /*
+      Given an array of possibilities
+    */
     function findBestPiece(){
       var possibilities = calculatePossibilities();
       // find best
       // set current to piece corresponding to best mat key
-      return piece
-    }
+      var result;
+      var current_best_rating = 9007199254740992 ; //One with lowest score
+      var len = possibilities.length;
+      for (var k = 0, k < len, k++){
+        var cur = possibilities[k]
+        var rating = calculateScore(piece);
+        if (rating < current_best_rating){
+          current_best_rating = rating;
+          result = piece;
+          }
+        }
+      return result;
+      }
+
+
+
+
+    //   return piece
+    // }
+
+
 
     function dropBestPiece(){
       var piece = findBestPOssibilities();
