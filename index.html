@@ -538,8 +538,8 @@
       var result;
       var current_best_rating = 9007199254740992 ; //One with lowest score
       var len = possibilities.length;
-      for (var k = 0, k < len, k++){
-        var cur = possibilities[k]
+      for (var k = 0; k < len; k++){
+        var cur = possibilities[k];
         var rating = calculateScore(piece);
         if (rating < current_best_rating){
           current_best_rating = rating;
