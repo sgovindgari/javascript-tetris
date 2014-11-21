@@ -398,6 +398,64 @@
       console.log("printed number of holes"); 
     }
 
+    function calculatePossibilities(){
+      var possibilities = {};
+      // generate all poss
+      // for every x
+      // for every dir
+      var piece;
+      var currmat;
+      eachblock(piece.type, piece.x, piece.y, piece.dir, function(x, y) {
+        setBlockMat(x, y, current.type, currmat);
+      });
+      possibilities[currmat] = piece;
+      return possibilities;
+    }
+
+
+    // Given a tretris array: return score based on heuristic function.
+    // TODO - Handle for when the matrix is empty
+    function calculateScore(matrix) {
+      var h2_h5 = getFullCells(matrix)[fullcells] + getFullCells(matrix)[fullalt]; //returns object with mappings
+      var fullcells = h2_h5[fullcells];
+      var fullcellsAlt = h2_h5[fullalt];
+      var h3_h4 = getSlopeValues(matrix);
+      var slope = h3_h4[h3];
+      var roughness = h3_h4[h4];
+      var highestCell = getHighestCell(matrix);
+      var nHoles = getNumberOfHoles(matrix);
+      // TODO - Dont you have to weight them? So multiply by some constant. Check the blog for the values
+      return fullcells + fullcellsAlt + slope + roughness + highestCell + nHoles;
+    }
+
+    /*
+      Given an array of possibilities
+    */
+    function findBestPiece(){
+      var possibilities = calculatePossibilities();
+      // find best
+      // set current to piece corresponding to best mat key
+      var result;
+      var current_best_rating = 9007199254740992 ; //One with lowest score
+      var len = possibilities.length;
+      for (var k = 0; k < len; k++){
+        var cur = possibilities[k];
+        var rating = calculateScore(piece);
+        if (rating < current_best_rating){
+          current_best_rating = rating;
+          result = piece;
+          }
+        }
+      return result;
+      }
+
+    // Given the optimal piece object - drop the piece to the position
+    function dropBestPiece(){
+      var piece = findBestPiece();
+      // drop it all the way
+      current = piece;
+    }
+
 
     //-------------------------------------------------------------------------
     // GAME LOGIC
@@ -482,6 +540,7 @@
     function drop() {
       if (!move(DIR.DOWN)) {
         addScore(10);
+        // current = findBestPiece()
         dropPiece();
         removeLines();
 
@@ -497,70 +556,6 @@
         testSlope(blocks);
       }
 
-    }
-
-    function calculatePossibilities(){
-      var possibilities = {};
-      // generate all poss
-      // for every x
-      // for every dir
-      var piece;
-      var currmat;
-      eachblock(piece.type, piece.x, piece.y, piece.dir, function(x, y) {
-        setBlockMat(x, y, current.type, currmat);
-      });
-      possibilities[currmat] = piece;
-      return possibilities;
-    }
-
-
-    // Given a tretris array: return score based on heuristic function.
-    function calculateScore(matrix) {
-      var h2_h5 = getFullCells(matrix)[fullcells] + getFullCells(matrix)[fullalt]; //returns object with mappings
-      var fullcells = h2_h5[fullcells];
-      var fullcellsAlt = h2_h5[fullalt];
-      var h3_h4 = getSlopeValues(matrix);
-      var slope = h3_h4[h3];
-      var roughness = h3_h4[h4];
-      var highestCell = getHighestCell(matrix);
-      var nHoles = getNumberOfHoles(matrix);
-
-      return fullcells + fullcellsAlt + slope + roughness + highestCell + nHoles;
-    }
-
-    /*
-      Given an array of possibilities
-    */
-    function findBestPiece(){
-      var possibilities = calculatePossibilities();
-      // find best
-      // set current to piece corresponding to best mat key
-      var result;
-      var current_best_rating = 9007199254740992 ; //One with lowest score
-      var len = possibilities.length;
-      for (var k = 0; k < len; k++){
-        var cur = possibilities[k];
-        var rating = calculateScore(piece);
-        if (rating < current_best_rating){
-          current_best_rating = rating;
-          result = piece;
-          }
-        }
-      return result;
-      }
-
-
-
-
-    //   return piece
-    // }
-
-
-
-    function dropBestPiece(){
-      var piece = findBestPOssibilities();
-      // drop it all the way
-      drop();
     }
 
     function dropPiece() {
