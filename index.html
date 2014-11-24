@@ -167,9 +167,8 @@
 
     
     //given a piece, generate all possibilities of x and direction
-    var allpieces = [];
-    var types = []
     function getAllPieces(current){
+      var allpieces = [];
       // types = [i,j,l,o,s,t,z];
       for (var x = 0 ; x <= (nx - current.type.size) ; x = x + 1){
         allpieces.push({ type: current.type, dir: DIR.UP, x: x, y: current.y });
@@ -320,7 +319,7 @@
             if (getBlock(x,y) != null)
             {
               height = 20 - y;
-              console.log(height);
+              // console.log(height);
               break;
             }
           }
@@ -413,9 +412,6 @@
       console.log("printed number of holes"); 
     }
 
-    var allpieces;
-    var possibilities = [];
-    // index in possible allpieces corresponds to index of the matrix (nx by ny state of the board) in possibilities
 
     // Given a tretris array: return score based on heuristic function.
     // TODO - Handle for when the matrix is empty
@@ -588,7 +584,7 @@
       // generate all pieces
       // for every x
       // for every dir of the original piece (current) 
-      var allpieces = getAllPieces(current); // given current, generate all possibilities of x and direction
+      allpieces = getAllPieces(current); // given current, generate all possibilities of x and direction
       // console.log(allpieces);
       for (var p = 0 ; p < allpieces.length; p = p +1){
         var currpiece = allpieces[p];
@@ -604,7 +600,7 @@
         possibilities.push(currmat);
       }
       console.log(possibilities);
-      current = allpieces[0];
+      // current = allpieces[0];
       return possibilities;  
     }
 
