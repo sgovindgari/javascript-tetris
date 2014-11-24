@@ -413,30 +413,57 @@
       console.log("printed number of holes"); 
     }
 
+    var allpieces;
+    var possibilities = [];
+    // index in possible allpieces corresponds to index of the matrix (nx by ny state of the board) in possibilities
     function calculatePossibilities(){
-      var possibilities = {};
-      // generate all poss
+      possibilities = [];
+      // generate all pieces
       // for every x
-      // for every dir
-      var piece;
-      var currmat;
-      eachblock(piece.type, piece.x, piece.y, piece.dir, function(x, y) {
-        setBlockMat(x, y, current.type, currmat);
-      });
-      possibilities[currmat] = piece;
-      return possibilities;
+      // for every dir of the original piece (current) 
+      var allpieces = getAllPieces(current); // given current, generate all possibilities of x and direction
+      // console.log(allpieces);
+      for (var p = 0 ; p < allpieces.length; p = p +1){
+        var currpiece = allpieces[p];
+        var currmat = clone(blocks);
+        // console.log(blocks);
+        // console.log(currmat);
+        // console.log(currpiece.type);
+        eachblock(currpiece.type, currpiece.x, currpiece.y, currpiece.dir, function(x, y) {
+          setBlockMat(currpiece.x, currpiece.y, currpiece.type, currmat);
+        });
+        // console.log("changed");
+        // console.log(currmat);
+        possibilities.push(currmat);
+      }
+      console.log(possibilities);
+      // return possibilities;  
     }
+
+    // function calculatePossibilities(){
+    //   var possibilities = {};
+    //   // generate all poss
+    //   // for every x
+    //   // for every dir
+    //   var piece;
+    //   var currmat;
+    //   eachblock(piece.type, piece.x, piece.y, piece.dir, function(x, y) {
+    //     setBlockMat(x, y, current.type, currmat);
+    //   });
+    //   possibilities[currmat] = piece;
+    //   return possibilities;
+    // }
 
 
     // Given a tretris array: return score based on heuristic function.
     // TODO - Handle for when the matrix is empty
     function calculateScore(matrix) {
-      var h2_h5 = getFullCells(matrix)[fullcells] + getFullCells(matrix)[fullalt]; //returns object with mappings
-      var fullcells = h2_h5[fullcells];
-      var fullcellsAlt = h2_h5[fullalt];
+      var h2_h5 = getFullCells(matrix).fullcells + getFullCells(matrix).fullalt; //returns object with mappings
+      var fullcells = h2_h5.fullcells;
+      var fullcellsAlt = h2_h5.fullalt;
       var h3_h4 = getSlopeValues(matrix);
-      var slope = h3_h4[h3];
-      var roughness = h3_h4[h4];
+      var slope = h3_h4.h3;
+      var roughness = h3_h4.h4;
       var highestCell = getHighestCell(matrix);
       var nHoles = getNumberOfHoles(matrix);
       // TODO - Dont you have to weight them? So multiply by some constant. Check the blog for the values
@@ -447,7 +474,7 @@
       Given an array of possibilities
     */
     function findBestPiece(){
-      var possibilities = calculatePossibilities();
+      calculatePossibilities();
       // find best
       // set current to piece corresponding to best mat key
       var result;
@@ -455,18 +482,20 @@
       var len = possibilities.length;
       for (var k = 0; k < len; k++){
         var cur = possibilities[k];
-        var rating = calculateScore(piece);
+        var rating = calculateScore(cur);
         if (rating < current_best_rating){
           current_best_rating = rating;
-          result = piece;
+          result = cur;
           }
         }
+        console.log("Find best piece return value: " + result);
       return result;
       }
 
     // Given the optimal piece object - drop the piece to the position
     function dropBestPiece(){
       var piece = findBestPiece();
+      console.log(piece);
       // drop it all the way
       current = piece;
     }
@@ -555,7 +584,10 @@
     function drop() {
       if (!move(DIR.DOWN)) {
         addScore(10);
-        // current = findBestPiece()
+        if (findBestPiece() != null)
+        {
+          current = findBestPiece();
+        }
         dropPiece();
         removeLines();
 
@@ -621,11 +653,11 @@
       return piece
     }
 
-    function dropBestPiece(){
-      var piece = findBestPiece();
-      // drop it all the way
-      drop();
-    }
+    // function dropBestPiece(){
+    //   var piece = findBestPiece();
+    //   // drop it all the way
+    //   drop();
+    // }
 
     function dropPiece() {
       eachblock(current.type, current.x, current.y, current.dir, function(x, y) {
