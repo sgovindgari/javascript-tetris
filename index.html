@@ -416,31 +416,40 @@
     // Given a tretris array: return score based on heuristic function.
     // TODO - Handle for when the matrix is empty
     function calculateScore(matrix) {
+      var return_value;
       var h2_h5 = getFullCells(matrix).fullcells + getFullCells(matrix).fullalt; //returns object with mappings
-      var fullcells = h2_h5.fullcells;
-      var fullcellsAlt = h2_h5.fullalt;
       var h3_h4 = getSlopeValues(matrix);
       var slope = h3_h4.h3;
       var roughness = h3_h4.h4;
       var highestCell = getHighestCell(matrix);
       var nHoles = getNumberOfHoles(matrix);
       // TODO - Dont you have to weight them? So multiply by some constant. Check the blog for the values
-      return fullcells + fullcellsAlt + slope + roughness + highestCell + nHoles;
+      // console.log(h2_h5);
+      // console.log(slope);
+      // console.log(roughness);
+      // console.log(highestCell);
+      // console.log(nHoles);
+      return_value = h2_h5 + slope + roughness + highestCell + nHoles;
+      return return_value;
     }
 
     /*
       Given an array of possibilities
     */
     function findBestPiece(){
-      calculatePossibilities();
+      //calculatePossibilities();
       // find best
       // set current to piece corresponding to best mat key
+      possibilities = calculatePossibilities();
+
       var result;
       var current_best_rating = 9007199254740992 ; //One with lowest score
       var len = possibilities.length;
+      // console.log(possibilities.length);
       for (var k = 0; k < len; k++){
         var cur = possibilities[k];
         var rating = calculateScore(cur);
+        console.log(rating);
         if (rating < current_best_rating){
           current_best_rating = rating;
           result = k;
