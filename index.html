@@ -416,7 +416,7 @@
     var allpieces;
     var possibilities = [];
     // index in possible allpieces corresponds to index of the matrix (nx by ny state of the board) in possibilities
-    function calculatePossibilities(){
+    function calculatePossibilities(current){
       possibilities = [];
       // generate all pieces
       // for every x
@@ -470,11 +470,12 @@
       return fullcells + fullcellsAlt + slope + roughness + highestCell + nHoles;
     }
 
+    console.log(possibilities);
     /*
       Given an array of possibilities
     */
-    function findBestPiece(){
-      calculatePossibilities();
+    function findBestPiece(current){
+      calculatePossibilities(current);
       // find best
       // set current to piece corresponding to best mat key
       var result;
@@ -485,12 +486,14 @@
         var rating = calculateScore(cur);
         if (rating < current_best_rating){
           current_best_rating = rating;
-          result = cur;
+          result = k; //Index in possibilties array, of the best possibility.
           }
         }
         console.log("Find best piece return value: " + result);
-      return result;
+      return allpieces[k];
       }
+
+      //findBestPiece(current);
 
     // Given the optimal piece object - drop the piece to the position
     function dropBestPiece(){
