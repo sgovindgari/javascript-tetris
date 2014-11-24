@@ -443,11 +443,11 @@
         var rating = calculateScore(cur);
         if (rating < current_best_rating){
           current_best_rating = rating;
-          result = cur;
+          result = k;
           }
         }
         console.log("Find best piece return value: " + result);
-      return result;
+      return allpieces[k];
       }
 
     // Given the optimal piece object - drop the piece to the position
