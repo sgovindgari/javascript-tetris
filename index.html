@@ -171,7 +171,7 @@
     var types = []
     function getAllPieces(current){
       // types = [i,j,l,o,s,t,z];
-      for (var x = current.type.size ; x <= (nx - current.type.size) ; x = x + 1){
+      for (var x = 0 ; x <= (nx - current.type.size) ; x = x + 1){
         allpieces.push({ type: current.type, dir: DIR.UP, x: x, y: current.y });
         allpieces.push({ type: current.type, dir: DIR.RIGHT, x: x, y: current.y });
         allpieces.push({ type: current.type, dir: DIR.DOWN, x: x, y: current.y });
