@@ -416,44 +416,6 @@
     var allpieces;
     var possibilities = [];
     // index in possible allpieces corresponds to index of the matrix (nx by ny state of the board) in possibilities
-    function calculatePossibilities(){
-      possibilities = [];
-      // generate all pieces
-      // for every x
-      // for every dir of the original piece (current) 
-      var allpieces = getAllPieces(current); // given current, generate all possibilities of x and direction
-      // console.log(allpieces);
-      for (var p = 0 ; p < allpieces.length; p = p +1){
-        var currpiece = allpieces[p];
-        var currmat = clone(blocks);
-        // console.log(blocks);
-        // console.log(currmat);
-        // console.log(currpiece.type);
-        eachblock(currpiece.type, currpiece.x, currpiece.y, currpiece.dir, function(x, y) {
-          setBlockMat(currpiece.x, currpiece.y, currpiece.type, currmat);
-        });
-        // console.log("changed");
-        // console.log(currmat);
-        possibilities.push(currmat);
-      }
-      console.log(possibilities);
-      // return possibilities;  
-    }
-
-    // function calculatePossibilities(){
-    //   var possibilities = {};
-    //   // generate all poss
-    //   // for every x
-    //   // for every dir
-    //   var piece;
-    //   var currmat;
-    //   eachblock(piece.type, piece.x, piece.y, piece.dir, function(x, y) {
-    //     setBlockMat(x, y, current.type, currmat);
-    //   });
-    //   possibilities[currmat] = piece;
-    //   return possibilities;
-    // }
-
 
     // Given a tretris array: return score based on heuristic function.
     // TODO - Handle for when the matrix is empty
@@ -642,7 +604,7 @@
         possibilities.push(currmat);
       }
       console.log(possibilities);
-      // current = allpieces[0];
+      current = allpieces[0];
       return possibilities;  
     }
 
