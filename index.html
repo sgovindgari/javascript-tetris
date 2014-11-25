@@ -343,8 +343,6 @@
     return {h3 : max, h4 : sum};
   }
 
-
-    
     //h1: altitude of highest full cell in playing field.
     // The Y coordinate of the highest Cell in the playing field
     //Input tetris grid, return x,y coordinates of highest block. 
@@ -429,7 +427,7 @@
       // console.log(roughness);
       // console.log(highestCell);
       // console.log(nHoles);
-      return_value = h2_h5 + slope + roughness + highestCell + nHoles;
+      return_value = h2_h5 + slope + roughness + highestCell + 20*nHoles;
       return return_value;
     }
 
@@ -529,6 +527,16 @@
         case DIR.LEFT:  x = x - 1; break;
         case DIR.DOWN:  y = y + 1; break;
       }
+      // check to see if there is a best piece
+      var piece = findBestPiece();
+      console.log("Calling best piece config");
+      if (piece != null)
+      {
+          current = piece;
+          invalidate();
+          drop();
+          return true;
+      }
       if (unoccupied(current.type, x, y, current.dir)) {
         current.x = x;
         current.y = y;
@@ -551,10 +559,6 @@
     function drop() {
       if (!move(DIR.DOWN)) {
         addScore(10);
-        if (findBestPiece() != null)
-        {
-          current = findBestPiece();
-        }
         dropPiece();
         removeLines();
 
