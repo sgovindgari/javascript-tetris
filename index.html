@@ -427,7 +427,7 @@
       // console.log(roughness);
       // console.log(highestCell);
       // console.log(nHoles);
-      return_value = h2_h5 + slope + roughness + highestCell + 20*nHoles;
+      return_value = h2_h5 + slope + roughness + highestCell + nHoles;
       return return_value;
     }
 
@@ -438,31 +438,32 @@
       //calculatePossibilities();
       // find best
       // set current to piece corresponding to best mat key
-      possibilities = calculatePossibilities();
-
+      var poss = calculatePossibilities();
+      //console.log(poss);
       var result;
       var current_best_rating = 9007199254740992 ; //One with lowest score
-      var len = possibilities.length;
+      var len = poss.length;
       // console.log(possibilities.length);
-      for (var k = 0; k < len; k++){
-        var cur = possibilities[k];
+      for (var k = 0; k < len; k = k+1){
+        var cur = poss[k];
+
         var rating = calculateScore(cur);
-        console.log(rating);
+        //console.log(rating);
         if (rating < current_best_rating){
           current_best_rating = rating;
           result = k;
           }
         }
-        console.log("Find best piece return value: " + rating + "index:" + k);
-      return allpieces[k];
+        //console.log("Find best piece return value: " + current_best_rating + "index:" + result + "Piece: " + allpieces[result]);
+      //current = allpieces[result];
+      return result;
       }
 
     // Given the optimal piece object - drop the piece to the position
     function dropBestPiece(){
-      var piece = findBestPiece();
-      console.log(piece);
+      var index = findBestPiece();
       // drop it all the way
-      current = piece;
+      current = allpieces[index];
     }
 
 
@@ -501,7 +502,7 @@
     function update(idt) {
       if (playing) {
         if (vscore < score)
-          setVisualScore(vscore + 1);
+          setVisualScore(vscore + 1);      
         handle(actions.shift());
         dt = dt + idt;
         if (dt > step) {
@@ -527,17 +528,28 @@
         case DIR.LEFT:  x = x - 1; break;
         case DIR.DOWN:  y = y + 1; break;
       }
-      // check to see if there is a best piece
-      var piece = findBestPiece();
-      console.log("Calling best piece config");
-      if (piece != null)
+
+      // AI UI
+      // TODO - blocks is not getting updated - needs to be fixed
+      // findBestPiece always returns zero index
+      if (y == 3 && unoccupied(current.type, x, y, current.dir))
       {
-          current = piece;
+        var index = findBestPiece();
+        console.log("reached y value: " + index + " Piece: " + allpieces[index].x);
+        if (index != -1)
+        {
+          console.log("setting current piece");
+          console.log(current);
+          console.log(allpieces[index]);
+          current.type = allpieces[index].type;
+          current.x = allpieces[index].x;
+          current.y = y;
           invalidate();
-          drop();
           return true;
+        }
       }
-      if (unoccupied(current.type, x, y, current.dir)) {
+      /**********************************************/
+      else if (unoccupied(current.type, x, y, current.dir)) {
         current.x = x;
         current.y = y;
         invalidate();
@@ -561,7 +573,6 @@
         addScore(10);
         dropPiece();
         removeLines();
-
         setCurrentPiece(next);
         setNextPiece(randomPiece());
         clearActions();
@@ -592,13 +603,14 @@
     var allpieces;
     var possibilities;
     // index in possible allpieces corresponds to index of the matrix (nx by ny state of the board) in possibilities
-    function calculatePossibilities(){
+    function calculatePossibilities()
+    {
       possibilities = [];
       // generate all pieces
       // for every x
       // for every dir of the original piece (current) 
       allpieces = getAllPieces(current); // given current, generate all possibilities of x and direction
-      // console.log(allpieces);
+      //console.log("All pieces: " + allpieces);
       for (var p = 0 ; p < allpieces.length; p = p +1){
         var currpiece = allpieces[p];
         var currmat = clone(blocks);
@@ -612,8 +624,8 @@
         // console.log(currmat);
         possibilities.push(currmat);
       }
-      console.log(possibilities);
-      // current = allpieces[0];
+      //console.log(allpieces[0]);
+      //current = allpieces[0];
       return possibilities;  
     }
 
