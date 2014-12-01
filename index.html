@@ -444,16 +444,28 @@
       var current_best_rating = 9007199254740992 ; //One with lowest score
       var len = poss.length;
       // console.log(possibilities.length);
+      console.log(poss);
+
       for (var k = 0; k < len; k = k+1){
+        //console.log("kth possibility, cur k value is: " + k);
+
         var cur = poss[k];
+        //console.log("kth possibility for cur piece: " + cur);
 
         var rating = calculateScore(cur);
+        //console.log( "rating for this index is " + rating);
         //console.log(rating);
+        
+        //console.log("cur best before check: " + current_best_rating);
+        //console.log ("rating to compare against is: " + rating);
         if (rating < current_best_rating){
           current_best_rating = rating;
+          //console.log("new cur_best: " + current_best_rating);
           result = k;
+          //console.log("new index is " + result);
           }
-        }
+
+      }
         //console.log("Find best piece return value: " + current_best_rating + "index:" + result + "Piece: " + allpieces[result]);
       //current = allpieces[result];
       return result;
@@ -535,12 +547,13 @@
       if (y == 3 && unoccupied(current.type, x, y, current.dir))
       {
         var index = findBestPiece();
-        console.log("reached y value: " + index + " Piece: " + allpieces[index].x);
+        //console.log(index);
+        //console.log("reached y value: " + index + " Piece: " + allpieces[index].x);
         if (index != -1)
         {
-          console.log("setting current piece");
-          console.log(current);
-          console.log(allpieces[index]);
+          //console.log("setting current piece");
+          //console.log(current);
+          //console.log(allpieces[index]);
           current.type = allpieces[index].type;
           current.x = allpieces[index].x;
           current.y = y;
