@@ -601,14 +601,20 @@
         // console.log(blocks);
         // console.log(currmat);
         // console.log(currpiece.type);
+        // console.log(currpiece.dir);
+
         eachblock(currpiece.type, currpiece.x, currpiece.y, currpiece.dir, function(x, y) {
-          setBlockMat(currpiece.x, currpiece.y, currpiece.type, currmat);
+          setBlockMat(x, y, currpiece.type, currmat);
         });
         // console.log("changed");
         // console.log(currmat);
         possibilities.push(currmat);
       }
-      console.log(possibilities);
+      console.log("logging possibilities")
+      for (p in possibilities){
+        console.log(possibilities[p])
+      }
+      console.log("done");
       // current = allpieces[0];
       return possibilities;  
     }
