@@ -343,8 +343,6 @@
     return {h3 : max, h4 : sum};
   }
 
-
-    
     //h1: altitude of highest full cell in playing field.
     // The Y coordinate of the highest Cell in the playing field
     //Input tetris grid, return x,y coordinates of highest block. 
@@ -440,31 +438,44 @@
       //calculatePossibilities();
       // find best
       // set current to piece corresponding to best mat key
-      possibilities = calculatePossibilities();
-
+      var poss = calculatePossibilities();
+      //console.log(poss);
       var result;
       var current_best_rating = 9007199254740992 ; //One with lowest score
-      var len = possibilities.length;
+      var len = poss.length;
       // console.log(possibilities.length);
-      for (var k = 0; k < len; k++){
-        var cur = possibilities[k];
+      console.log(poss);
+
+      for (var k = 0; k < len; k = k+1){
+        //console.log("kth possibility, cur k value is: " + k);
+
+        var cur = poss[k];
+        //console.log("kth possibility for cur piece: " + cur);
+
         var rating = calculateScore(cur);
-        console.log(rating);
+        //console.log( "rating for this index is " + rating);
+        //console.log(rating);
+        
+        //console.log("cur best before check: " + current_best_rating);
+        //console.log ("rating to compare against is: " + rating);
         if (rating < current_best_rating){
           current_best_rating = rating;
+          //console.log("new cur_best: " + current_best_rating);
           result = k;
+          //console.log("new index is " + result);
           }
-        }
-        console.log("Find best piece return value: " + rating + "index:" + k);
-      return allpieces[k];
+
+      }
+        //console.log("Find best piece return value: " + current_best_rating + "index:" + result + "Piece: " + allpieces[result]);
+      //current = allpieces[result];
+      return result;
       }
 
     // Given the optimal piece object - drop the piece to the position
     function dropBestPiece(){
-      var piece = findBestPiece();
-      console.log(piece);
+      var index = findBestPiece();
       // drop it all the way
-      current = piece;
+      current = allpieces[index];
     }
 
 
@@ -503,7 +514,7 @@
     function update(idt) {
       if (playing) {
         if (vscore < score)
-          setVisualScore(vscore + 1);
+          setVisualScore(vscore + 1);      
         handle(actions.shift());
         dt = dt + idt;
         if (dt > step) {
@@ -529,7 +540,29 @@
         case DIR.LEFT:  x = x - 1; break;
         case DIR.DOWN:  y = y + 1; break;
       }
-      if (unoccupied(current.type, x, y, current.dir)) {
+
+      // AI UI
+      // TODO - blocks is not getting updated - needs to be fixed
+      // findBestPiece always returns zero index
+      if (y == 3 && unoccupied(current.type, x, y, current.dir))
+      {
+        var index = findBestPiece();
+        //console.log(index);
+        //console.log("reached y value: " + index + " Piece: " + allpieces[index].x);
+        if (index != -1)
+        {
+          //console.log("setting current piece");
+          //console.log(current);
+          //console.log(allpieces[index]);
+          current.type = allpieces[index].type;
+          current.x = allpieces[index].x;
+          current.y = y;
+          invalidate();
+          return true;
+        }
+      }
+      /**********************************************/
+      else if (unoccupied(current.type, x, y, current.dir)) {
         current.x = x;
         current.y = y;
         invalidate();
@@ -551,13 +584,8 @@
     function drop() {
       if (!move(DIR.DOWN)) {
         addScore(10);
-        if (findBestPiece() != null)
-        {
-          current = findBestPiece();
-        }
         dropPiece();
         removeLines();
-
         setCurrentPiece(next);
         setNextPiece(randomPiece());
         clearActions();
@@ -588,13 +616,14 @@
     var allpieces;
     var possibilities;
     // index in possible allpieces corresponds to index of the matrix (nx by ny state of the board) in possibilities
-    function calculatePossibilities(){
+    function calculatePossibilities()
+    {
       possibilities = [];
       // generate all pieces
       // for every x
       // for every dir of the original piece (current) 
       allpieces = getAllPieces(current); // given current, generate all possibilities of x and direction
-      // console.log(allpieces);
+      //console.log("All pieces: " + allpieces);
       for (var p = 0 ; p < allpieces.length; p = p +1){
         var currpiece = allpieces[p];
         var currmat = clone(blocks);
@@ -616,6 +645,8 @@
       }
       console.log("done");
       // current = allpieces[0];
+      //console.log(allpieces[0]);
+      //current = allpieces[0];
       return possibilities;  
     }
 
