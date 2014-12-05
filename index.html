@@ -255,7 +255,7 @@
     // h4 = the roughness (sum of the slopes)
 
     // Given the nx by ny grid, calculate the number of full cells in the playfield
-    function getFullCells(blocks)
+    function getFullCells(matrix)
     {
       // total number of full cells in the grid
       var count = 0;
@@ -268,7 +268,7 @@
         for (var x = 0; x < nx; x++)
         {
           // if there exists a block increment count
-          if (getBlock(x,y) != null)
+          if (getBlockMat(x,y, matrix) != null)
           {
             count = count+1;
             temp = temp + 1;
@@ -308,7 +308,7 @@
         return counter;
     }
 
-    function getSlopeValues(blocks){
+    function getSlopeValues(matrix){
       var slopes = [];
       var prev = 0.0;
       var current = 0.0;
@@ -316,7 +316,7 @@
           var height = 0;
           for (var y = 0; y < ny; y++)
           {
-            if (getBlock(x,y) != null)
+            if (getBlockMat(x,y, matrix) != null)
             {
               height = 20 - y;
               // console.log(height);
@@ -349,7 +349,7 @@
     //If two blocks are at the same height, return block with smaller x coordinate. 
     //Return with -1 for x and y values if grid is empty.
     // From the top left of the grid. Y increases as you go down!!
-    function getHighestCell(blocks)
+    function getHighestCell(matrix)
     {
       var highestAltitude = -1 ;
 
@@ -358,7 +358,7 @@
         for (var x = 0; x < nx; x++)
         {
           //Search from top down. Return coordinates of first block we find.
-          if(getBlock(x,y) != null)
+          if(getBlockMat(x,y, matrix) != null)
             {
               return ny-y
             }
@@ -371,7 +371,7 @@
     //h0 : number of hole in the playfield
     //Return number of holes and "soft holes" in grid
     //soft hole are empty cells under an occupied cell.
-    function getNumberOfHoles(blocks){
+    function getNumberOfHoles(matrix){
     
     //variables x and y and number of holes and "soft holes"
     var x = 0;
@@ -382,11 +382,11 @@
     {
       for (y = 0; y < ny; y++)
       {
-        if (getBlock(x,y) != null){ //Found block, look for all empty slots underneath it.
+        if (getBlockMat(x,y, matrix) != null){ //Found block, look for all empty slots underneath it.
 
           for (y1 = y; y < ny; y++)
           {
-            if (getBlock(x,y) == null){
+            if (getBlockMat(x,y, matrix) == null){
               holecount = holecount + 1;
             }
           }
@@ -422,11 +422,11 @@
       var highestCell = getHighestCell(matrix);
       var nHoles = getNumberOfHoles(matrix);
       // TODO - Dont you have to weight them? So multiply by some constant. Check the blog for the values
-      // console.log(h2_h5);
-      // console.log(slope);
-      // console.log(roughness);
-      // console.log(highestCell);
-      // console.log(nHoles);
+      console.log(h2_h5);
+      console.log(slope);
+      console.log(roughness);
+      console.log(highestCell);
+      console.log(nHoles);
       return_value = h2_h5 + slope + roughness + highestCell + nHoles;
       return return_value;
     }
@@ -435,7 +435,6 @@
       Given an array of possibilities
     */
     function findBestPiece(){
-      //calculatePossibilities();
       // find best
       // set current to piece corresponding to best mat key
       var poss = calculatePossibilities();
@@ -444,16 +443,16 @@
       var current_best_rating = 9007199254740992 ; //One with lowest score
       var len = poss.length;
       // console.log(possibilities.length);
-      console.log(poss);
+      // console.log(poss);
 
       for (var k = 0; k < len; k = k+1){
         //console.log("kth possibility, cur k value is: " + k);
 
         var cur = poss[k];
-        //console.log("kth possibility for cur piece: " + cur);
+        console.log(cur);
 
         var rating = calculateScore(cur);
-        //console.log( "rating for this index is " + rating);
+        console.log( "rating for this index is " + rating);
         //console.log(rating);
         
         //console.log("cur best before check: " + current_best_rating);
@@ -494,6 +493,7 @@
     function setRows(n)             { rows = n; step = Math.max(speed.min, speed.start - (speed.decrement*rows)); invalidateRows(); }
     function addRows(n)             { setRows(rows + n); }
     function getBlock(x,y)          { return (blocks && blocks[x] ? blocks[x][y] : null); }
+    function getBlockMat(x,y,mat)  { return (mat && mat[x] ? mat[x][y] : null); }
     function setBlockMat(x,y,type, mat) { mat[x] = mat[x] || []; mat[x][y] = type; invalidate(); }
     function setBlock(x,y,type)     { setBlockMat(x,y,type, blocks) }
     function clearBlocks()          { blocks = []; invalidate(); }
@@ -519,7 +519,8 @@
         dt = dt + idt;
         if (dt > step) {
           dt = dt - step;
-          drop(blocks);
+          drop();
+          // console.log("drop blocks")
         }
       }
     }
@@ -541,7 +542,7 @@
         case DIR.DOWN:  y = y + 1; break;
       }
 
-      // AI UI
+      // AI UI - Spandana
       // TODO - blocks is not getting updated - needs to be fixed
       // findBestPiece always returns zero index
       if (y == 3 && unoccupied(current.type, x, y, current.dir))
@@ -561,8 +562,9 @@
           return true;
         }
       }
-      /**********************************************/
-      else if (unoccupied(current.type, x, y, current.dir)) {
+    //   /**********************************************/
+    //else
+      if (unoccupied(current.type, x, y, current.dir)) {
         current.x = x;
         current.y = y;
         invalidate();
@@ -583,6 +585,7 @@
 
     function drop() {
       if (!move(DIR.DOWN)) {
+        // console.log("dropping");
         addScore(10);
         dropPiece();
         removeLines();
@@ -613,6 +616,17 @@
       return copy;
     }
 
+    function getDropYCoord(piece){
+      var y;
+      for (y = piece.y ; y < ny ; y = y + 1){
+        if (!(unoccupied(piece.type, piece.x, y, piece.dir))) {
+          break;
+        }
+      }
+      console.log(y-1);
+      return y-1;
+    }
+
     var allpieces;
     var possibilities;
     // index in possible allpieces corresponds to index of the matrix (nx by ny state of the board) in possibilities
@@ -627,25 +641,22 @@
       for (var p = 0 ; p < allpieces.length; p = p +1){
         var currpiece = allpieces[p];
         var currmat = clone(blocks);
-        // console.log(blocks);
-        // console.log(currmat);
-        // console.log(currpiece.type);
-        // console.log(currpiece.dir);
 
-        eachblock(currpiece.type, currpiece.x, currpiece.y, currpiece.dir, function(x, y) {
+        yDropCoord = getDropYCoord(currpiece);
+
+
+        eachblock(currpiece.type, currpiece.x, yDropCoord, currpiece.dir, function(x, y) {
           setBlockMat(x, y, currpiece.type, currmat);
         });
-        // console.log("changed");
-        // console.log(currmat);
         possibilities.push(currmat);
       }
-      console.log("logging possibilities")
-      for (p in possibilities){
-        console.log(possibilities[p])
-      }
-      console.log("done");
+      // console.log("logging possibilities")
+      // for (p in possibilities){
+      //   console.log(possibilities[p])
+      // }
+      // console.log("done");
+      
       // current = allpieces[0];
-      //console.log(allpieces[0]);
       //current = allpieces[0];
       return possibilities;  
     }
