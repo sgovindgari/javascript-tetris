@@ -422,11 +422,11 @@
       var highestCell = getHighestCell(matrix);
       var nHoles = getNumberOfHoles(matrix);
       // TODO - Dont you have to weight them? So multiply by some constant. Check the blog for the values
-      console.log(h2_h5);
-      console.log(slope);
-      console.log(roughness);
-      console.log(highestCell);
-      console.log(nHoles);
+      //console.log(h2_h5);
+      //console.log(slope);
+      //console.log(roughness);
+      //console.log(highestCell);
+      //console.log(nHoles);
       return_value = h2_h5 + slope + roughness + highestCell + (20 * nHoles);
       return return_value;
     }
@@ -446,7 +446,7 @@
       // console.log(poss);
 
       for (var k = 0; k < len; k = k+1){
-        //console.log("kth possibility, cur k value is: " + k);
+        console.log("kth possibility, cur k value is: " + k);
 
         var cur = poss[k];
         console.log(cur);
@@ -455,13 +455,13 @@
         console.log( "rating for this index is " + rating);
         //console.log(rating);
         
-        //console.log("cur best before check: " + current_best_rating);
-        //console.log ("rating to compare against is: " + rating);
+        console.log("cur best before check: " + current_best_rating);
+        console.log ("rating to compare against is: " + rating);
         if (rating < current_best_rating){
           current_best_rating = rating;
-          //console.log("new cur_best: " + current_best_rating);
+          console.log("new cur_best: " + current_best_rating);
           result = k;
-          //console.log("new index is " + result);
+          console.log("new index is " + result);
           }
 
       }
