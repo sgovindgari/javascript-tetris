@@ -418,8 +418,6 @@
         var currmat = clone(blocks);
 
         yDropCoord = getDropYCoord(currpiece);
-
-
         eachblock(currpiece.type, currpiece.x, yDropCoord, currpiece.dir, function(x, y) {
           setBlockMat(x, y, currpiece.type, currmat);
         });
@@ -570,12 +568,12 @@
       // AI UI - Spandana
       // TODO - blocks is not getting updated - needs to be fixed
       // findBestPiece always returns zero index
-      if (y == 3 && unoccupied(current.type, x, y, current.dir))
+      if (y == getDropYCoord(current))
       {
         var index = findBestPiece();
         //console.log(index);
         //console.log("Index: " + index + " Piece: " + allpieces[index]);
-        if (index != -1)
+        if (index != -1 && unoccupied(current.type, allpieces[index].x, y, allpieces[index].dir))
         {
           current.type = allpieces[index].type;
           current.dir = allpieces[index].dir;
