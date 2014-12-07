@@ -282,32 +282,6 @@
       return {fullcells : count, fullalt : result};
     }
 
-     function testSlope(blocks){
-      var stats = getSlopeValues(blocks); // global
-      console.log(stats);
-    }
-
-    function testFullCells(){
-      var stats = getFullCells(blocks); // global\
-      console.log("hello");
-      console.log(stats);
-      // console.log(stats[fullalt]);
-    }
-
-    function testPerformance(blocks){
-      reset();
-      var counter = 0
-      for (var x = 0; x < nx; x++)
-      {
-        for (var y = 0; y < ny; y++) {
-          if (getBlock(0,0) != null){
-            counter = counter + 1; // dummy
-          }
-        }
-      }
-        return counter;
-    }
-
     function getSlopeValues(matrix){
       var slopes = [];
       var prev = 0.0;
@@ -397,21 +371,7 @@
       return holecount;
     }
 
-
-    function testGetHighestCell(blocks){
-      highestCell = getHighestCell(blocks);
-      console.log(highestCell);       
-      console.log("printed Highest Cell altitude");
-    }
-
-    function testGetNumberOfHoles(blocks){
-      nHoles = getNumberOfHoles(blocks);
-      console.log(nHoles);
-      console.log("printed number of holes"); 
-    }
-
-
-    // Given a tretris array: return score based on heuristic function.
+     // Given a tretris array: return score based on heuristic function.
     // TODO - Handle for when the matrix is empty
     function calculateScore(matrix) {
       var return_value;
@@ -431,6 +391,43 @@
       return return_value;
     }
 
+    function clone(arr){
+      var copy = [];
+      for (i in arr){
+        if (arr[i] == null){
+          copy.push(null);
+          continue;
+        }
+        copy.push(arr[i].slice(0));
+      }
+      return copy;
+    }
+
+    var allpieces;
+    var possibilities;
+    // index in possible allpieces corresponds to index of the matrix (nx by ny state of the board) in possibilities
+    function calculatePossibilities()
+    {
+      possibilities = [];
+      // generate all pieces
+      // for every x
+      // for every dir of the original piece (current) 
+      allpieces = getAllPieces(current); // given current, generate all possibilities of x and direction
+      for (var p = 0 ; p < allpieces.length; p = p +1){
+        var currpiece = allpieces[p];
+        var currmat = clone(blocks);
+
+        yDropCoord = getDropYCoord(currpiece);
+
+
+        eachblock(currpiece.type, currpiece.x, yDropCoord, currpiece.dir, function(x, y) {
+          setBlockMat(x, y, currpiece.type, currmat);
+        });
+        possibilities.push(currmat);
+      }
+      return possibilities;  
+    }
+
     /*
       Given an array of possibilities
     */
@@ -438,46 +435,74 @@
       // find best
       // set current to piece corresponding to best mat key
       var poss = calculatePossibilities();
-      //console.log(poss);
       var result;
       var current_best_rating = 9007199254740992 ; //One with lowest score
       var len = poss.length;
-      // console.log(possibilities.length);
-      // console.log(poss);
 
       for (var k = 0; k < len; k = k+1){
-        console.log("kth possibility, cur k value is: " + k);
-
         var cur = poss[k];
-        console.log(cur);
-
         var rating = calculateScore(cur);
-        console.log( "rating for this index is " + rating);
-        //console.log(rating);
         
-        console.log("cur best before check: " + current_best_rating);
-        console.log ("rating to compare against is: " + rating);
-        if (rating < current_best_rating){
+        if (rating < current_best_rating)
+        {
           current_best_rating = rating;
-          console.log("new cur_best: " + current_best_rating);
           result = k;
-          console.log("new index is " + result);
-          }
+        }
 
       }
-        //console.log("Find best piece return value: " + current_best_rating + "index:" + result + "Piece: " + allpieces[result]);
-      //current = allpieces[result];
       return result;
       }
 
-    // Given the optimal piece object - drop the piece to the position
-    function dropBestPiece(){
-      var index = findBestPiece();
-      // drop it all the way
-      current = allpieces[index];
+    function getDropYCoord(piece){
+      var y;
+      for (y = piece.y ; y < ny ; y = y + 1){
+        if (!(unoccupied(piece.type, piece.x, y, piece.dir))) {
+          break;
+        }
+      }
+      //console.log(y-1);
+      return y-1;
     }
 
+    // Testing
 
+    function testGetHighestCell(blocks){
+      highestCell = getHighestCell(blocks);
+      console.log(highestCell);       
+      console.log("printed Highest Cell altitude");
+    }
+
+    function testGetNumberOfHoles(blocks){
+      nHoles = getNumberOfHoles(blocks);
+      console.log(nHoles);
+      console.log("printed number of holes"); 
+    }
+
+     function testSlope(blocks){
+      var stats = getSlopeValues(blocks); // global
+      console.log(stats);
+    }
+
+    function testFullCells(){
+      var stats = getFullCells(blocks); // global\
+      console.log(stats);
+    }
+
+    function testPerformance(blocks){
+      reset();
+      var counter = 0
+      for (var x = 0; x < nx; x++)
+      {
+        for (var y = 0; y < ny; y++) {
+          if (getBlock(0,0) != null){
+            counter = counter + 1; // dummy
+          }
+        }
+      }
+        return counter;
+    }
+
+   
     //-------------------------------------------------------------------------
     // GAME LOGIC
     //-------------------------------------------------------------------------
@@ -549,21 +574,18 @@
       {
         var index = findBestPiece();
         //console.log(index);
-        //console.log("reached y value: " + index + " Piece: " + allpieces[index].x);
+        //console.log("Index: " + index + " Piece: " + allpieces[index]);
         if (index != -1)
         {
-          //console.log("setting current piece");
-          //console.log(current);
-          //console.log(allpieces[index]);
           current.type = allpieces[index].type;
+          current.dir = allpieces[index].dir;
           current.x = allpieces[index].x;
           current.y = y;
           invalidate();
           return true;
         }
       }
-    //   /**********************************************/
-    //else
+
       if (unoccupied(current.type, x, y, current.dir)) {
         current.x = x;
         current.y = y;
@@ -602,63 +624,6 @@
         // calculatePossibilities();
       }
 
-    }
-
-    function clone(arr){
-      var copy = [];
-      for (i in arr){
-        if (arr[i] == null){
-          copy.push(null);
-          continue;
-        }
-        copy.push(arr[i].slice(0));
-      }
-      return copy;
-    }
-
-    function getDropYCoord(piece){
-      var y;
-      for (y = piece.y ; y < ny ; y = y + 1){
-        if (!(unoccupied(piece.type, piece.x, y, piece.dir))) {
-          break;
-        }
-      }
-      console.log(y-1);
-      return y-1;
-    }
-
-    var allpieces;
-    var possibilities;
-    // index in possible allpieces corresponds to index of the matrix (nx by ny state of the board) in possibilities
-    function calculatePossibilities()
-    {
-      possibilities = [];
-      // generate all pieces
-      // for every x
-      // for every dir of the original piece (current) 
-      allpieces = getAllPieces(current); // given current, generate all possibilities of x and direction
-      //console.log("All pieces: " + allpieces);
-      for (var p = 0 ; p < allpieces.length; p = p +1){
-        var currpiece = allpieces[p];
-        var currmat = clone(blocks);
-
-        yDropCoord = getDropYCoord(currpiece);
-
-
-        eachblock(currpiece.type, currpiece.x, yDropCoord, currpiece.dir, function(x, y) {
-          setBlockMat(x, y, currpiece.type, currmat);
-        });
-        possibilities.push(currmat);
-      }
-      // console.log("logging possibilities")
-      // for (p in possibilities){
-      //   console.log(possibilities[p])
-      // }
-      // console.log("done");
-      
-      // current = allpieces[0];
-      //current = allpieces[0];
-      return possibilities;  
     }
 
     function dropPiece() {
