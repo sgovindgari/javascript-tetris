@@ -179,12 +179,18 @@
       // Make this certain for testing
       if (testing)
       {
-        var type = pieces[piece_index];
-        piece_index = piece_index+1;
         if (piece_index == pieces.length-1)
         {
+          var type = pieces[piece_index];  
           piece_index = 0;
         }
+        else
+        {
+          var type = pieces[piece_index];  
+          piece_index = piece_index+1;  
+        }
+        
+        console.log("Piece index: " + piece_index);        
         console.log("Type incoming: " + type);
         return {type: type, dir: DIR.UP, x: Math.round(nx/2), y:0};
       }
@@ -417,7 +423,7 @@
       //console.log(roughness);
       //console.log(highestCell);
       //console.log(nHoles);
-      return_value = h2_h5 + slope + roughness + highestCell + (20 * nHoles);
+      return_value = h2_h5 + slope + roughness + highestCell + 20*nHoles;
       return return_value;
     }
 
