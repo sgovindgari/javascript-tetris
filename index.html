@@ -95,6 +95,7 @@
         vscore,        // the currently displayed score (it catches up to score in small chunks - like a spinning slot machine)
         rows,          // number of completed rows in the current game
         step;          // how long before current piece drops by 1 row
+        testing = true // indicates if testing or not
 
     //-------------------------------------------------------------------------
     // tetris pieces
@@ -171,11 +172,27 @@
     // pick randomly until the 'bag is empty'
     //-----------------------------------------
     var pieces = [];
+    var piece_index = 0;
     function randomPiece() {
       if (pieces.length == 0)
         pieces = [i,i,i,i,j,j,j,j,l,l,l,l,o,o,o,o,s,s,s,s,t,t,t,t,z,z,z,z];
-      var type = pieces.splice(random(0, pieces.length-1), 1)[0];
-      return { type: type, dir: DIR.UP, x: Math.round(random(0, nx - type.size)), y: 0 };
+      // Make this certain for testing
+      if (testing)
+      {
+        var type = pieces[piece_index];
+        piece_index = piece_index+1;
+        if (piece_index == pieces.length-1)
+        {
+          piece_index = 0;
+        }
+        console.log("Type incoming: " + type);
+        return {type: type, dir: DIR.UP, x: Math.round(nx/2), y:0};
+      }
+      else 
+      {
+        var type = pieces.splice(random(0, pieces.length-1), 1)[0];
+        return { type: type, dir: DIR.UP, x: Math.round(random(0, nx - type.size)), y: 0 };  
+      }      
     }
 
     
@@ -569,7 +586,12 @@
     function addScore(n)            { score = score + n;   }
     function clearScore()           { setScore(0); }
     function clearRows()            { setRows(0); }
-    function setRows(n)             { rows = n; step = Math.max(speed.min, speed.start - (speed.decrement*rows)); invalidateRows(); }
+    function setRows(n)             { rows = n; 
+                                      if (testing) {
+                                        step = 0.0001;
+                                      }
+                                      else {Math.max(speed.min, speed.start - (speed.decrement*rows));}
+                                      invalidateRows(); }
     function addRows(n)             { setRows(rows + n); }
     function getBlock(x,y)          { return (blocks && blocks[x] ? blocks[x][y] : null); }
     function getBlockMat(x,y,mat)  { return (mat && mat[x] ? mat[x][y] : null); }
