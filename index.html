@@ -149,8 +149,21 @@
       return result;
     }
 
+    function occupiedMat(type, x, y, dir, mat) {
+      var result = false
+      eachblock(type, x, y, dir, function(x, y) {
+        if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || getBlockMat(x,y, mat))
+          result = true;
+      });
+      return result;
+    }
+
     function unoccupied(type, x, y, dir) {
       return !occupied(type, x, y, dir);
+    }
+
+    function unoccupiedMat(type, x, y, dir, mat) {
+      return !occupiedMat(type, x, y, dir, mat);
     }
 
     //-----------------------------------------
@@ -426,6 +439,37 @@
       return possibilities;  
     }
 
+      var allpieces2;
+     function findBestPieceDepth2()
+    {
+      possibilities = calculatePossibilities();
+      var result;
+      var current_best_rating = 9007199254740992;
+      // generate all pieces
+      // for every x
+      // for every dir of the original piece (current) 
+      allpieces2 = getAllPieces(next); // given current, generate all possibilities of x and direction
+      for (var d = 0 ; d < possibilities.length ; d = d+1){
+        // var bestpiece;
+        for (var p = 0 ; p < allpieces2.length; p = p +1){
+          var currpiece = allpieces2[p];
+          var currmat = clone(possibilities[d]);
+
+          yDropCoord = getDropYCoordMat(currpiece, currmat);
+          eachblock(currpiece.type, currpiece.x, yDropCoord, currpiece.dir, function(x, y) {
+            setBlockMat(x, y, currpiece.type, currmat);
+          });
+          var rating = calculateScore(currmat);
+           if (rating < current_best_rating)
+          {
+            current_best_rating = rating;
+            result = d;
+          }
+        }
+     }
+      return result;
+    }
+
     /*
       Given an array of possibilities
     */
@@ -452,9 +496,21 @@
       }
 
     function getDropYCoord(piece){
+      return getDropYCoordMat(piece, blocks);
+      //  var y;
+      // for (y = piece.y ; y < ny ; y = y + 1){
+      //   if (!(unoccupied(piece.type, piece.x, y, piece.dir))) {
+      //     break;
+      //   }
+      // }
+      // //console.log(y-1);
+      // return y-1;
+    }
+
+    function getDropYCoordMat(piece, mat){
       var y;
       for (y = piece.y ; y < ny ; y = y + 1){
-        if (!(unoccupied(piece.type, piece.x, y, piece.dir))) {
+        if (!(unoccupiedMat(piece.type, piece.x, y, piece.dir, mat))) {
           break;
         }
       }
@@ -570,7 +626,7 @@
       // findBestPiece always returns zero index
       if (y == getDropYCoord(current))
       {
-        var index = findBestPiece();
+        var index = findBestPieceDepth2();
         //console.log(index);
         //console.log("Index: " + index + " Piece: " + allpieces[index]);
         if (index != -1 && unoccupied(current.type, allpieces[index].x, y, allpieces[index].dir))
