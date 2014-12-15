@@ -95,7 +95,7 @@
         vscore,        // the currently displayed score (it catches up to score in small chunks - like a spinning slot machine)
         rows,          // number of completed rows in the current game
         step;          // how long before current piece drops by 1 row
-        testing = true // indicates if testing or not
+        testing = false // indicates if testing or not
 
     //-------------------------------------------------------------------------
     // tetris pieces
@@ -174,34 +174,51 @@
     var pieces = [];
     var piece_index = 0;
     function randomPiece() {
-      if (pieces.length == 0)
+      if (testing && pieces.length == 0)
+      {
+        // Configuration - cyan, green, green, yellow
+        pieces = [i,s,s,o,s,t,z,i,j,l,o,s,t,z,i,j,l,o,s,t,z,i,j,l,o,s,t,z];
+      }
+
+     if (!testing && pieces.length == 0)
         pieces = [i,i,i,i,j,j,j,j,l,l,l,l,o,o,o,o,s,s,s,s,t,t,t,t,z,z,z,z];
       // Make this certain for testing
       if (testing)
       {
         if (piece_index == pieces.length-1)
         {
-          var type = pieces[piece_index];  
+          var type = pieces.splice(0,1)[0];  
+          while (typeof(type) === "string")
+          {
+            type =  pieces.splice(0, 1)[0];
+          }
           piece_index = 0;
         }
         else
         {
-          var type = pieces[piece_index];  
+          console.log(pieces);
+          var type = pieces.splice(0,1)[0]; 
+          while (typeof(type) === "string")
+          {
+            type =  pieces.splice(0, 1)[0];
+          }
+          console.log("assigned type: " + type);  
           piece_index = piece_index+1;  
         }
-        
-        console.log("Piece index: " + piece_index);        
-        console.log("Type incoming: " + type);
         return {type: type, dir: DIR.UP, x: Math.round(nx/2), y:0};
       }
       else 
       {
         var type = pieces.splice(random(0, pieces.length-1), 1)[0];
+        while (typeof(type) === "string")
+        {
+          type =  pieces.splice(random(0, pieces.length-1), 1)[0];
+        }
         return { type: type, dir: DIR.UP, x: Math.round(random(0, nx - type.size)), y: 0 };  
+
       }      
     }
-
-    
+ 
     //given a piece, generate all possibilities of x and direction
     function getAllPieces(current){
       var allpieces = [];
@@ -411,7 +428,8 @@
     // TODO - Handle for when the matrix is empty
     function calculateScore(matrix) {
       var return_value;
-      var h2_h5 = getFullCells(matrix).fullcells + getFullCells(matrix).fullalt; //returns object with mappings
+      var h2 = getFullCells(matrix).fullcells;
+      var h5 = getFullCells(matrix).fullalt; //returns object with mappings
       var h3_h4 = getSlopeValues(matrix);
       var slope = h3_h4.h3;
       var roughness = h3_h4.h4;
@@ -423,7 +441,7 @@
       //console.log(roughness);
       //console.log(highestCell);
       //console.log(nHoles);
-      return_value = h2_h5 + slope + roughness + highestCell + 20*nHoles;
+      return_value = h2 + h5 + 0*slope + roughness + highestCell + nHoles;
       return return_value;
     }
 
@@ -454,6 +472,7 @@
         var currmat = clone(blocks);
 
         yDropCoord = getDropYCoord(currpiece);
+        
         eachblock(currpiece.type, currpiece.x, yDropCoord, currpiece.dir, function(x, y) {
           setBlockMat(x, y, currpiece.type, currmat);
         });
@@ -596,7 +615,9 @@
                                       if (testing) {
                                         step = 0.0001;
                                       }
-                                      else {Math.max(speed.min, speed.start - (speed.decrement*rows));}
+                                      else {
+                                        step = Math.max(speed.min, speed.start - (speed.decrement*rows));
+                                      }
                                       invalidateRows(); }
     function addRows(n)             { setRows(rows + n); }
     function getBlock(x,y)          { return (blocks && blocks[x] ? blocks[x][y] : null); }
@@ -606,7 +627,7 @@
     function clearBlocks()          { blocks = []; invalidate(); }
     function clearActions()         { actions = []; }
     function setCurrentPiece(piece) { current = piece || randomPiece(); invalidate();     }
-    function setNextPiece(piece)    { next    = piece || randomPiece(); invalidateNext(); }
+    function setNextPiece(piece)    { console.log(piece); next    = piece || randomPiece(); invalidateNext(); }
 
     function reset() {
       dt = 0;
@@ -652,12 +673,12 @@
       // AI UI - Spandana
       // TODO - blocks is not getting updated - needs to be fixed
       // findBestPiece always returns zero index
+     
       if (y == getDropYCoord(current))
-      {
-        var index = findBestPieceDepth2();
-        //console.log(index);
-        //console.log("Index: " + index + " Piece: " + allpieces[index]);
-        if (index != -1 && unoccupied(current.type, allpieces[index].x, y, allpieces[index].dir))
+      {        
+        var index = findBestPiece();
+
+        if (index != -1 && unoccupied(allpieces[index].type, allpieces[index].x, y, allpieces[index].dir))
         {
           current.type = allpieces[index].type;
           current.dir = allpieces[index].dir;
@@ -694,7 +715,9 @@
         dropPiece();
         removeLines();
         setCurrentPiece(next);
+        console.log("Before random piece: " + pieces)
         setNextPiece(randomPiece());
+        console.log("Is pieces changing here:" + pieces);
         clearActions();
         if (occupied(current.type, current.x, current.y, current.dir)) {
           lose();
