@@ -95,7 +95,7 @@
         vscore,        // the currently displayed score (it catches up to score in small chunks - like a spinning slot machine)
         rows,          // number of completed rows in the current game
         step;          // how long before current piece drops by 1 row
-        testing = false // indicates if testing or not
+        testing = true // indicates if testing or not
 
     //-------------------------------------------------------------------------
     // tetris pieces
@@ -196,13 +196,13 @@
         }
         else
         {
-          console.log(pieces);
+          //console.log(pieces);
           var type = pieces.splice(0,1)[0]; 
           while (typeof(type) === "string")
           {
             type =  pieces.splice(0, 1)[0];
           }
-          console.log("assigned type: " + type);  
+          //console.log("assigned type: " + type);  
           piece_index = piece_index+1;  
         }
         return {type: type, dir: DIR.UP, x: Math.round(nx/2), y:0};
@@ -441,7 +441,7 @@
       //console.log(roughness);
       //console.log(highestCell);
       //console.log(nHoles);
-      return_value = h2 + h5 + 0*slope + roughness + highestCell + nHoles;
+      return_value = h2 + h5 + 20*slope + roughness + highestCell + nHoles;
       return return_value;
     }
 
@@ -481,35 +481,50 @@
       return possibilities;  
     }
 
-      var allpieces2;
-     function findBestPieceDepth2()
+    var allpieces2;
+
+    function findBestPieceDepth2()
     {
+      // drop to the hypothetical board each current piece dir and x
       possibilities = calculatePossibilities();
+
       var result;
       var current_best_rating = 9007199254740992;
       // generate all pieces
       // for every x
-      // for every dir of the original piece (current) 
-      allpieces2 = getAllPieces(next); // given current, generate all possibilities of x and direction
+      // for every dir of the original piece (next) 
+      allpieces2 = getAllPieces(next); // given next, generate all possibilities of x and direction
+
+     // console.log("All pieces: "+ allpieces2);
+
       for (var d = 0 ; d < possibilities.length ; d = d+1){
         // var bestpiece;
         for (var p = 0 ; p < allpieces2.length; p = p +1){
+          
           var currpiece = allpieces2[p];
           var currmat = clone(possibilities[d]);
 
           yDropCoord = getDropYCoordMat(currpiece, currmat);
+
+          // level 2 hypothetical board
           eachblock(currpiece.type, currpiece.x, yDropCoord, currpiece.dir, function(x, y) {
             setBlockMat(x, y, currpiece.type, currmat);
           });
+
           var rating = calculateScore(currmat);
-           if (rating < current_best_rating)
+
+          if (rating < current_best_rating)
           {
+            //console.log ("Score: " + rating + "Index: " + d + "Next piece index: " + p);
             current_best_rating = rating;
             result = d;
           }
         }
      }
-      return result;
+     console.log("Best piece according to next: " + allpieces[result]);
+     //console.log("possibilities: " + possibilities);
+     //console.log("Best index: " + result);
+    return result;
     }
 
     /*
@@ -534,6 +549,8 @@
         }
 
       }
+      // possiblities - different possible board configurations
+      // Desired piece index - corresponds to all pieces[index]
       return result;
       }
 
@@ -627,7 +644,7 @@
     function clearBlocks()          { blocks = []; invalidate(); }
     function clearActions()         { actions = []; }
     function setCurrentPiece(piece) { current = piece || randomPiece(); invalidate();     }
-    function setNextPiece(piece)    { console.log(piece); next    = piece || randomPiece(); invalidateNext(); }
+    function setNextPiece(piece)    { next    = piece || randomPiece(); invalidateNext(); }
 
     function reset() {
       dt = 0;
@@ -661,7 +678,7 @@
         case DIR.DOWN:  drop();          break;
       }
     }
-
+    var depth = 2;
     function move(dir) {
       var x = current.x, y = current.y;
       switch(dir) {
@@ -676,8 +693,10 @@
      
       if (y == getDropYCoord(current))
       {        
-        var index = findBestPiece();
-
+        var index = findBestPieceDepth2();
+        
+        //Math.round(random(0, allpieces.length-1)); 
+        //console.log(index);
         if (index != -1 && unoccupied(allpieces[index].type, allpieces[index].x, y, allpieces[index].dir))
         {
           current.type = allpieces[index].type;
@@ -715,9 +734,9 @@
         dropPiece();
         removeLines();
         setCurrentPiece(next);
-        console.log("Before random piece: " + pieces)
+        //console.log("Before random piece: " + pieces)
         setNextPiece(randomPiece());
-        console.log("Is pieces changing here:" + pieces);
+        //console.log("Is pieces changing here:" + pieces);
         clearActions();
         if (occupied(current.type, current.x, current.y, current.dir)) {
           lose();
