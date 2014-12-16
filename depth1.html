@@ -441,7 +441,7 @@
       //console.log(roughness);
       //console.log(highestCell);
       //console.log(nHoles);
-      return_value = h2 + h5 + 20*slope + 0*roughness + highestCell + nHoles;
+      return_value = h2 + h5 + 0.02*slope + roughness + highestCell + nHoles;
       return return_value;
     }
 
@@ -693,7 +693,7 @@
      
       if (y == getDropYCoord(current))
       {        
-        var index = findBestPieceDepth2();
+        var index = findBestPiece();
         
         //Math.round(random(0, allpieces.length-1)); 
         //console.log(index);
